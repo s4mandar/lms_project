@@ -3,6 +3,21 @@ import argon from "argon2"
 import { InternalSeverError } from "../utils/error.js"
 
 class TeacherService {
+
+    async getAllTeachers(req, res, next) {
+        try {
+            const teachers = await pool.query(`select id, fullname, phone, created_at, status from teachers`)
+
+            return {
+                status: 200,
+                data: teachers.rows
+            }
+        } catch (error) {
+            next(new InternalSeverError(500, "Internal server error!"))
+        }
+    }
+
+
     async createTeacher(req, res, next) {
         try {
             const { fullname, phone, password, experience, job, description, portfolio, github, telegram, linkedin } = req.body

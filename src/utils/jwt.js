@@ -3,7 +3,7 @@ import JWT from "jsonwebtoken"
 configDotenv()
 
 export function generateAccessToken(payload) {
-    return JWT.sign(payload, process.env.SECRET_KEY, { expiresIn: "30m" })
+    return JWT.sign(payload, process.env.SECRET_KEY, { expiresIn: "2h" })
 }
 
 export function generateRefreshToken(payload) {

@@ -10,9 +10,12 @@ class AuthService {
             const { phone, password } = req.body
 
             let existUser = await pool.query(`select * from staff where phone = $1`, [phone])
-
             if (!existUser.rows.length) {
-                return next(new NotFoundError(404, "User not found with this phone or password is incorrect!"))
+                existUser = await pool.query(`select * from teachers where phone = $1`, [phone])
+                if (!existUser.rows.length) {
+                    return next(new NotFoundError(404, "User not found with this phone or password is incorrect!"))
+                }
+                existUser.rows[0].role = "teacher"
             }
 
             if (!await argon.verify(existUser.rows[0].password, password)) {

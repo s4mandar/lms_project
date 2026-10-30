@@ -3,7 +3,7 @@ const router = express.Router()
 import staffController from "../controllers/staff.js"
 import validationMiddleware from "../middlewares/validation.js"
 import { authGuard } from "../guards/auth.guard.js"
-import { roleGuard} from "../guards.role.guard.js"
+import { roleGuard} from "../guards/role.guard.js"
 
 router
     .get("/staff", authGuard, roleGuard("admin"), staffController.getAllStaff)
