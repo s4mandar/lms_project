@@ -42,3 +42,12 @@ export class InternalSeverError extends Error {
         this.name = "InternalSeverError"
     }
 }
+
+export class ForbiddenError extends Error {
+    constructor(status, message) {
+        super()
+        this.status = status
+        this.message = message
+        this.name = "ForbiddenError"
+    }
+}
