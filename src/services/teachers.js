@@ -1,6 +1,6 @@
 import pool from "../config/db.js"
 import argon from "argon2"
-import { InternalSeverError } from "../utils/error.js"
+import { ErrorException } from "../utils/error.js"
 
 class TeacherService {
 
@@ -13,7 +13,7 @@ class TeacherService {
                 data: teachers.rows
             }
         } catch (error) {
-            next(new InternalSeverError(500, "Internal server error!"))
+            next(new ErrorException(500, "Internal server error!"))
         }
     }
 
@@ -31,7 +31,7 @@ class TeacherService {
                 message: "Teacher added!"
             }
         } catch (error) {
-            return next(new InternalSeverError(500, error))
+            return next(new ErrorException(500, error))
         }
     }
 }

@@ -1,6 +1,6 @@
 import pool from "../config/db.js"
 import argon2 from "argon2"
-import { ConflictError, InternalSeverError, NotFoundError } from "../utils/error.js"
+import { ErrorException } from "../utils/error.js"
 
 class StaffService {
     constructor() { }
@@ -13,7 +13,7 @@ class StaffService {
                 data: staffs.rows
             }
         } catch (error) {
-            return next(new InternalSeverError(500, error))
+            return next(new ErrorException(500, error))
         }
     }
 
@@ -22,7 +22,7 @@ class StaffService {
             const { fullname, phone, password, role } = req.body
             let existStaff = await pool.query(`select * from staff where phone = $1`, [phone])
             if (existStaff.rows.length) {
-                return next(new ConflictError(409, "User already exist with this phone"))
+                return next(new ErrorException(409, "User already exist with this phone"))
             }
             let hashPassword = await argon2.hash(password)
             await pool.query(`insert into staff(fullname, phone, password, role)
@@ -33,7 +33,7 @@ class StaffService {
                 message: "User successfully created"
             }
         } catch (error) {
-            return next(new InternalSeverError(500, error))
+            return next(new ErrorException(500, error))
         }
     }
 
@@ -42,7 +42,7 @@ class StaffService {
             const { userId } = req.params
             let existStaff = await pool.query(`select * from staff where id = $1`, [userId])
             if (!existStaff.rows.length) {
-                return next(new NotFoundError(404, "User not found with this userId"))
+                return next(new ErrorException(404, "User not found with this userId"))
             }
             await pool.query(`update staff set status = 'inactive' where id = $1`, [userId])
 
@@ -51,7 +51,7 @@ class StaffService {
                 message: "User deleted!"
             }
         } catch (error) {
-            return next(new InternalSeverError(500, error))
+            return next(new ErrorException(500, error))
         }
     }
 }

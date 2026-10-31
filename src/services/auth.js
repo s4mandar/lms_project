@@ -1,10 +1,10 @@
 import pool from "../config/db.js"
-import { InternalSeverError, NotFoundError } from "../utils/error.js"
+import { ErrorException } from "../utils/error.js"
 import argon from "argon2"
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js"
 
 class AuthService {
-
+    
     async login(req, res, next) {
         try {
             const { phone, password } = req.body
@@ -13,13 +13,13 @@ class AuthService {
             if (!existUser.rows.length) {
                 existUser = await pool.query(`select * from teachers where phone = $1`, [phone])
                 if (!existUser.rows.length) {
-                    return next(new NotFoundError(404, "User not found with this phone or password is incorrect!"))
+                    return next(new ErrorException(404, "User not found with this phone or password is incorrect!"))
                 }
                 existUser.rows[0].role = "teacher"
             }
 
             if (!await argon.verify(existUser.rows[0].password, password)) {
-                return next(new NotFoundError(404, "User not found with this phone or password is incorrect!"))
+                return next(new ErrorException(404, "User not found with this phone or password is incorrect!"))
             }
 
             return {
@@ -29,7 +29,7 @@ class AuthService {
                 refreshToken: generateRefreshToken({ id: existUser.rows[0].id, phone: existUser.rows[0].phone, role: existUser.rows[0].role })
             }
         } catch (error) {
-            return next(new InternalSeverError(500, error))
+            return next(new ErrorException(500, error))
         }
     }
 }
