@@ -26,7 +26,7 @@ class TeacherService {
             await pool.query(`insert into teachers(fullname, phone, password, experience, job, description, portfolio, github, telegram, linkedin) 
                 values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`, [fullname, phone, hashPass, experience, job, description, portfolio, github, telegram, linkedin])
 
-            return {
+            return {    
                 status: 201,
                 message: "Teacher added!"
             }

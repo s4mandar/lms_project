@@ -19,7 +19,7 @@ app.use((error, req, res, next) => {
         })
     } else {
         fs.appendFileSync(path.join(process.cwd(), "src", "log", "logger.txt"),
-            `[${new Date().toLocaleString()}]-${req.method}-${req.url}-${error.message}\n`
+            `\r\n[${new Date().toLocaleString()}]-${req.method}-${req.url}-${error.message}\r\n`
         )
 
         return res.status(error.status).json({

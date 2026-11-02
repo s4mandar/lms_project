@@ -7,6 +7,6 @@ import { roleGuard } from "../guards/role.guard.js"
 
 router
     .get("/courses", authGuard, roleGuard("admin"), courseController.getAllCourses)
-    .post("/courses",authGuard, roleGuard("admin", "teacher"), middleware.createCourse, courseController.createCourse)
+    .post("/courses",authGuard, roleGuard("teacher"), middleware.createCourse, courseController.createCourse)
 
 export default router

@@ -26,7 +26,8 @@ class AuthService {
                 status: 200,
                 message: "User successfully login!",
                 accessToken: generateAccessToken({ id: existUser.rows[0].id, phone: existUser.rows[0].phone, role: existUser.rows[0].role }),
-                refreshToken: generateRefreshToken({ id: existUser.rows[0].id, phone: existUser.rows[0].phone, role: existUser.rows[0].role })
+                refreshToken: generateRefreshToken({ id: existUser.rows[0].id, phone: existUser.rows[0].phone, role: existUser.rows[0].role }),
+                role: existUser.rows[0].role
             }
         } catch (error) {
             return next(new ErrorException(500, error))

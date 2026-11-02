@@ -12,7 +12,6 @@ class CoursesController {
             return res.status(resData.status).json(resData)
         }
     }
-
 }
 
 const coursesController = new CoursesController()
