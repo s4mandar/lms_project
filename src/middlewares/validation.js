@@ -50,5 +50,12 @@ export default {
             return next(new ErrorException(400, error.message))
         }
         return next()
+    },
+    UpdateCourseSchema: (req, res, next) => {
+        let { error } = schema.UpdateCourseSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
     }
 }

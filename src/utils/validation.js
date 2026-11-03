@@ -1,39 +1,46 @@
 import Joi from "joi"
 
 export default {
-    staffSchema : Joi.object({
+    staffSchema: Joi.object({
         fullname: Joi.string().min(3).max(30).required(),
         phone: Joi.string().pattern(/^\+998(9[0123456789]|3[3]|7[1]|8[8])[0-9]{7}$/).required(),
         password: Joi.string().min(6).required(),
         role: Joi.string().required()
     }),
-    studentSchema : Joi.object({
+    studentSchema: Joi.object({
         fullname: Joi.string().min(3).max(30).required(),
         phone: Joi.string().pattern(/^\+998(9[0123456789]|3[3]|7[1]|8[8])[0-9]{7}$/).required(),
         password: Joi.string().min(6).required()
     }),
-    categorySchema : Joi.object({
+    categorySchema: Joi.object({
         name: Joi.string().min(3).max(30).required()
     }),
-    courseSchema : Joi.object({
+    courseSchema: Joi.object({
         name: Joi.string().min(3).max(30).required(),
         description: Joi.string().max(500),
         level: Joi.string().pattern(/^(beginner|elementary|intermadiate|advanced)$/).required(),
         price: Joi.string().pattern(/^\d+$/).required(),
         category_id: Joi.number().integer().positive().required()
     }),
-    staffUpdateSchema : Joi.object({
+    staffUpdateSchema: Joi.object({
         fullname: Joi.string().min(3).max(30),
         phone: Joi.string().pattern(/^\+998(9[0123456789]|3[3]|7[1]|8[8])[0-9]{7}$/),
         password: Joi.string().min(6),
         role: Joi.string()
     }),
-    UpdateStudentSchema : Joi.object({
+    UpdateStudentSchema: Joi.object({
         fullname: Joi.string().min(3).max(30),
         phone: Joi.string().pattern(/^\+998(9[0123456789]|3[3]|7[1]|8[8])[0-9]{7}$/),
         password: Joi.string().min(6)
     }),
-    UpdateCategorySchema : Joi.object({
+    UpdateCategorySchema: Joi.object({
         name: Joi.string().min(3).max(30)
+    }),
+    UpdateCourseSchema: Joi.object({
+        name: Joi.string().min(3).max(30),
+        description: Joi.string().max(500),
+        level: Joi.string().pattern(/^(beginner|elementary|intermadiate|advanced)$/),
+        price: Joi.string().pattern(/^\d+$/),
+        category_id: Joi.number().integer().positive()
     })
 }
