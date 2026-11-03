@@ -12,6 +12,21 @@ class StudentController {
             return res.status(resData.status).json(resData)
         }
     }
+    async updateStudentbyId(req, res, next) {
+        let resData = await studentService.updateStudentbyId(req, res, next)
+
+        if (resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
+
+    async deleteStudent(req, res, next) {
+        let resData = await studentService.deleteStudent(req, res, next)
+
+        if (resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
 
 }
 

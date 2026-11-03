@@ -31,7 +31,7 @@ class CoursesService {
                 return next(new ErrorException(400, "Banner is required!"))
             }
 
-            const fileNameBanner = Date.now() + "." + banner.mimetype.split("/")[1]
+            const fileNameBanner = Date.now() + "." + banner.mimetype.split("/")[1]   
             const allowFileType = ["png", "jpg", "jpeg", "svg"]
 
             if(!allowFileType.includes(banner.mimetype.split("/")[1])) {

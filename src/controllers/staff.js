@@ -10,10 +10,14 @@ class StaffController {
 
     async createStaff(req, res, next) {
         let resData = await staffservice.createStaff(req, res, next)
-        if (resData.status >= 400) {
-        }
-
         return res.status(resData.status).json(resData)
+    }
+
+    async updateStaff(req, res, next) {
+        let resData = await staffservice.updateStaff(req, res, next)
+        if(resData) {
+            return res.status(resData.status).json(resData)
+        }
     }
 
     async deleteStaff(req, res, next) {
