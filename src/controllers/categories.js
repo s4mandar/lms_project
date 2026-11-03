@@ -12,6 +12,20 @@ class CategoryController {
             return res.status(resData.status).json(resData)
         }
     }
+    async updateCategory(req, res, next) {
+        let resData = await categoryService.updateCategory(req, res, next)
+
+        if (resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
+    async deleteCategory(req, res, next) {
+        let resData = await categoryService.deleteCategory(req, res, next)
+
+        if(resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
 }
 
 const categoryController = new CategoryController()

@@ -47,6 +47,52 @@ class SectionService {
             return next(new ErrorException(500, error))
         }
     }
+
+    async updateSection(req, res, next) {
+        try {
+            const { name } = req.body || []
+            const { userId } = req.params
+            let existSection = await pool.query(`select * from sections where id = $1`, [userId])
+            if (!existSection.rows.length) {
+                return next(new ErrorException(404, "Section not found!"))
+            }
+
+            let currentSection = existSection.rows[0]
+
+            if(name && name !== currentSection.name) {
+                let existName = await pool.query(`select * from sections where name = $1 and id != $2`, [name, userId])
+                if(existName.rows.length) {
+                    return next(new ErrorException(409, "Section already exist with this name"))
+                }
+            }
+
+            await pool.query(`update sections set name = $1 where id = $2`, [name, userId])
+            return {
+                status: 200,
+                message: "Section updated!"
+            }
+        } catch (error) {
+            return next(new ErrorException(500, error))
+        }
+    }
+
+    async deleteSection(req, res, next) {
+        try {
+            const { userId } = req.params
+            let existSection = await pool.query(`select * from sections where id = $1`, [userId])
+            if (!existSection.rows.length) {
+                return next(new ErrorException(404, "Section not found!"))
+            }
+            await pool.query(`update sections set status = 'inactive' where id = $1`, [userId])
+
+            return {
+                status: 200,
+                message: "Section deleted!"
+            }
+        } catch (error) {
+            return next(new ErrorException(500, error))
+        }
+    }
 }
 
 const sectionService = new SectionService()

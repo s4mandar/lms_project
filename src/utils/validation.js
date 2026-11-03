@@ -32,5 +32,8 @@ export default {
         fullname: Joi.string().min(3).max(30),
         phone: Joi.string().pattern(/^\+998(9[0123456789]|3[3]|7[1]|8[8])[0-9]{7}$/),
         password: Joi.string().min(6)
+    }),
+    UpdateCategorySchema : Joi.object({
+        name: Joi.string().min(3).max(30)
     })
 }

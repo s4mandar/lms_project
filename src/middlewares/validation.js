@@ -43,5 +43,12 @@ export default {
             return next(new ErrorException(400, error.message))
         }
         return next()
+    },
+    updateCategory : (req, res, next) => {
+        let { error } = schema.UpdateCategorySchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
     }
 }
