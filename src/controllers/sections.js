@@ -1,6 +1,13 @@
 import sectionService from "../services/sections.js"
 
 class SectionController {
+    async getSections(req, res, next) {
+        let resData = await sectionService.getSections(req, res, next)
+        if (resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
+
     async getAllSections(req, res, next) {
         let resData = await sectionService.getAllSections()
         return res.status(resData.status).json(resData)

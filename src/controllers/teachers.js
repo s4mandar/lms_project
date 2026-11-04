@@ -15,6 +15,13 @@ class TeacherController {
         }
     }
 
+    async getTeacherByTeacherId(req, res, next) {
+        let resData = await teacherService.getTeacherByTeacherId(req, res, next)
+        if (resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
+
     async updateTeacherbyId(req, res, next) {
         let resData = await teacherService.updateTeacherbyId(req, res, next)
         if (resData) {

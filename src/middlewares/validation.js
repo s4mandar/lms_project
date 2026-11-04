@@ -57,5 +57,47 @@ export default {
             return next(new ErrorException(400, error.message))
         }
         return next()
+    },
+    lessonSchema: (req, res, next) => {
+        let { error } = schema.lessonSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    updateLessonSchema: (req, res, next) => {
+        let { error } = schema.updateLessonSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    teacherSchema: (req, res, next) => {
+        let { error } = schema.teacherSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    teacherUpdateSchema: (req, res, next) => {
+        let { error } = schema.teacherUpdateSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    assistSchema : (req, res, next) => {
+        let { error } = schema.assistSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    assistUpdateSchema : (req, res, next) => {
+        let { error } = schema.assistUpdateSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
     }
 }

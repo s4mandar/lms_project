@@ -17,10 +17,35 @@ class TeacherService {
         }
     }
 
+    async getTeacherByTeacherId(req, res, next) {
+        try {
+            let { teacherId } = req.params
+
+            let teacher = await pool.query(`select id, fullname, phone, photo, experience, job, description, portfolio, github, telegram, linkedin, created_at, status from teachers where id = $1`, [teacherId])
+
+            if(!teacher.rows.length) {
+                return next(new ErrorException(404, "Teacher not found with this id!"))
+            }
+
+            return {
+                status: 200,
+                data: teacher.rows
+            }
+        } catch (error) {
+            return next(new ErrorException(500, error))
+        }
+    }
 
     async createTeacher(req, res, next) {
         try {
             const { fullname, phone, password, experience, job, description, portfolio, github, telegram, linkedin } = req.body
+
+            let existNumber = await pool.query(`select * from teachers where phone = $1`, [phone])
+
+            if(existNumber.rows.length) {
+                return next(new ErrorException(409, "Teacher Number already exist!"))
+            }
+
             let hashPass = await argon.hash(password)
 
             await pool.query(`insert into teachers(fullname, phone, password, experience, job, description, portfolio, github, telegram, linkedin) 

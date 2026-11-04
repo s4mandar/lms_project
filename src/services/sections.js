@@ -2,6 +2,28 @@ import pool from "../config/db.js"
 import { ErrorException } from "../utils/error.js"
 
 class SectionService {
+    async getSections(req, res, next) {
+        const { courseId } = req.params
+        const { teacherId } = req.user.id
+
+        let course = await pool.query(`select * from courses where id = $1`, [+courseId])
+
+        if(!course.rows.length) {
+            return next(new ErrorException(404, "Course not found"))
+        }
+
+        if(req.user.role == "teacher" && course.rows[0].teacher_id != teacherId) {
+            return next(new ErrorException(403, "You cannot add section to this course"))
+        }
+
+        let sections = await pool.query(`select id, name from sections where course_id = $1`, [+courseId])
+
+        return {
+            status: 200,
+            data: sections.rows
+        }
+    }
+
     async getAllSections(req, res, next) {
         try {
             const sections = await pool.query(`select id, name from sections where status ='active'`)
