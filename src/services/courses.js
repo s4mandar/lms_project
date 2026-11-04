@@ -19,7 +19,7 @@ class CoursesService {
     async createCourse(req, res, next) {
         try {
             const { name, description, price, category_id, level } = req.body
-            const { banner, introVideo } = req.files
+            const { banner, introVideo } = req.files || {}
             const teacher_id = req.user.id
 
             const existCourse = await pool.query(`select * from courses where name = $1`, [name])
@@ -37,20 +37,29 @@ class CoursesService {
             if (!allowFileType.includes(banner.mimetype.split("/")[1])) {
                 return next(new ErrorException(415, "Unsupported mediatype"))
             }
-            banner.mv(process.cwd() + "/src/uploads/banners/" + fileNameBanner, (error) => {
+            await banner.mv(process.cwd() + "/src/uploads/banners/" + fileNameBanner, (error) => {
                 if (error) {
                     return next(new ErrorException(500, error))
                 }
             })
 
             let fileNameIntroVideo = null
-            if (fileNameIntroVideo) {
-                const fileNameIntroVideo = Date.now() + "." + introVideo.mimetype.split("/")[1]
-                introVideo.mv(process.cwd() + "/src/uploads/introvideos/" + fileNameIntroVideo, (error) => {
-                    if (error) {
-                        return next(new ErrorException(500, error))
-                    }
-                })
+
+            if (introVideo) {
+                fileNameIntroVideo = Date.now() + "." + introVideo.mimetype.split("/")[1]
+
+                const allowFileType = [
+                    "mp4", "mpeg", "mov", "avi", "mkv",
+                    "webm", "ogv", "3gp", "wmv", "flv"
+                ]
+
+                if (!allowFileType.includes(introVideo.mimetype.split("/")[1])) {
+                    return next(new ErrorException(415, "Unsupported mediatype"))
+                }
+
+                await introVideo.mv(
+                    process.cwd() + "/src/uploads/introvideos/" + fileNameIntroVideo
+                )
             }
 
             await pool.query(`insert into courses(banner, intro_video, name, description, level, price, category_id, teacher_id) 
@@ -68,7 +77,7 @@ class CoursesService {
     async updateCourse(req, res, next) {
         try {
             let { id } = req.params
-            let { name, description, level, price, category_id } = req.body || []
+            let { name, description, level, price, category_id } = req.body || {}
             let { banner, introVideo } = req.files || {}
 
             let existCourse = await pool.query(`select * from courses where id = $1`, [id])
@@ -89,7 +98,7 @@ class CoursesService {
                 if (!allowFileType.includes(banner.mimetype.split("/")[1])) {
                     return next(new ErrorException(415, "Unsupported mediatype"))
                 }
-                banner.mv(process.cwd() + "/src/uploads/banners/" + fileNameBanner, (error) => {
+                await banner.mv(process.cwd() + "/src/uploads/banners/" + fileNameBanner, (error) => {
                     if (error) {
                         return next(new ErrorException(500, error))
                     }
@@ -105,7 +114,7 @@ class CoursesService {
                 if (!allowFileType.includes(introVideo.mimetype.split("/")[1])) {
                     return next(new ErrorException(415, "Unsupported mediatype"))
                 }
-                introVideo.mv(process.cwd() + "/src/uploads/introvideos/" + fileNameIntroVideo, (error) => {
+                await introVideo.mv(process.cwd() + "/src/uploads/introvideos/" + fileNameIntroVideo, (error) => {
                     if (error) {
                         return next(new ErrorException(500, error))
                     }
@@ -131,18 +140,21 @@ class CoursesService {
         }
     }
     async deleteCourse(req, res, next) {
-        let { id } = req.params
+        try {
+            let { id } = req.params
+            let existCourse = await pool.query(`select id from courses where id = $1`,[id])
 
-        let existCourse = await pool.query(`select * from courses where id = $1`, [id])
-        if (!existCourse.rows.length) {
-            return next(new ErrorException(404, "Course not found with this id"))
-        }
+            if (!existCourse.rows.length) {
+                return next(new ErrorException(404, "Course not found with this id"))
+            }
+            await pool.query(`update courses set status = 'inactive' where id = $1`,[id])
+            return {
+                status: 200,
+                message: "Course deleted!"
+            }
 
-        pool.query(`update courses set status = 'inactive' where id = $1`, [id])
-
-        return {
-            status: 201,
-            message: "Course deleted!"
+        } catch (error) {
+            return next(new ErrorException(500, error))
         }
     }
 }

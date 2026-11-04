@@ -10,7 +10,7 @@ router
     .get("/lessons/:sectionId", authGuard, roleGuard("admin", "teacher"), middleware.lessonSchema, lessonController.getLessonsBySectionId)
     .get("/lessons", authGuard, roleGuard("teacher", "admin"), middleware.lessonSchema, lessonController.getAllLessons)
     .post("/lessons", authGuard, roleGuard("teacher"), middleware.lessonSchema, lessonController.createLesson)
-    // .put("/lessons/:id", authGuard, roleGuard("teacher"), middleware.updateLessonSchema, lessonController)
-    // .delete("/lessons/:id", authGuard, roleGuard("teacher", "admin"), lessonController)
+    .put("/lessons/:id", authGuard, roleGuard("teacher", "admin"), middleware.updateLessonSchema, lessonController.updateLesson)
+    .delete("/lessons/:id", authGuard, roleGuard("teacher", "admin"), lessonController.deleteLesson)
 
 export default router

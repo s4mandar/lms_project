@@ -24,19 +24,19 @@ class MaterialsController {
         }
     }
 
-    // async updateMaterial(req, res, next) {
-    //     let resData = await materialService.updateMaterial(req, res, next)
-    //     if(resData) {
-    //         return res.status(resData.status).json(resData)
-    //     }
-    // }
+    async updateMaterial(req, res, next) {
+        let resData = await materialService.updateMaterial(req, res, next)
+        if(resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
 
-    // async deleteMaterial(req, res, next) {
-    //     let resData = await materialService.deleteMaterial(req, res, next)
-    //     if (resData) {
-    //         return res.status(resData.status).json(resData)
-    //     }
-    // }
+    async deleteMaterial(req, res, next) {
+        let resData = await materialService.deleteMaterial(req, res, next)
+        if (resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
 }
 
 const materialsController = new MaterialsController()

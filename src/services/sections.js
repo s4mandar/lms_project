@@ -4,7 +4,7 @@ import { ErrorException } from "../utils/error.js"
 class SectionService {
     async getSections(req, res, next) {
         const { courseId } = req.params
-        const { teacherId } = req.user.id
+        const teacherId = req.user.id
 
         let course = await pool.query(`select * from courses where id = $1`, [+courseId])
 
@@ -72,8 +72,9 @@ class SectionService {
 
     async updateSection(req, res, next) {
         try {
-            const { name } = req.body || []
+            const { name } = req.body || {}
             const { userId } = req.params
+            
             let existSection = await pool.query(`select * from sections where id = $1`, [userId])
             if (!existSection.rows.length) {
                 return next(new ErrorException(404, "Section not found!"))
