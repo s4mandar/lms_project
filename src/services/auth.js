@@ -4,7 +4,7 @@ import argon from "argon2"
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js"
 
 class AuthService {
-    
+
     async login(req, res, next) {
         try {
             const { phone, password } = req.body

@@ -142,12 +142,12 @@ class CoursesService {
     async deleteCourse(req, res, next) {
         try {
             let { id } = req.params
-            let existCourse = await pool.query(`select id from courses where id = $1`,[id])
+            let existCourse = await pool.query(`select id from courses where id = $1`, [id])
 
             if (!existCourse.rows.length) {
                 return next(new ErrorException(404, "Course not found with this id"))
             }
-            await pool.query(`update courses set status = 'inactive' where id = $1`,[id])
+            await pool.query(`update courses set status = 'inactive' where id = $1`, [id])
             return {
                 status: 200,
                 message: "Course deleted!"

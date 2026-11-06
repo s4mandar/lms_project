@@ -17,7 +17,6 @@ class StudentService {
         }
     }
 
-
     async createStudent(req, res, next) {
         try {
             const { fullname, phone, password } = req.body
@@ -42,7 +41,7 @@ class StudentService {
     async updateStudentbyId(req, res, next) {
         try {
             let { userId } = req.params
-            let { fullname, phone, password } = req.body || []
+            let { fullname, phone, password } = req.body || {}
             let { photo } = req.files || {}
 
             let existStudent = await pool.query(`select * from students where id = $1`, [userId])

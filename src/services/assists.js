@@ -123,6 +123,7 @@ class AssistService {
             return next(new ErrorException(500, error))
         }
     }
+    
     async deleteAssist(req, res, next) {
         try {
             let { assistId } = req.params

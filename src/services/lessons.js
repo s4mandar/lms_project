@@ -159,7 +159,7 @@ class LessonService {
             let { id } = req.params
 
             let existLesson = await pool.query(`select * from lessons where id = $1`, [id])
-            if(!existLesson.rows.length) {
+            if (!existLesson.rows.length) {
                 return next(new ErrorException(404, "Lesson not found with this id"))
             }
 

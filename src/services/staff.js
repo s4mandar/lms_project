@@ -40,7 +40,7 @@ class StaffService {
     async updateStaff(req, res, next) {
         try {
             let { userId } = req.params
-            let { fullname, phone, password, role } = req.body || []
+            let { fullname, phone, password, role } = req.body || {}
             let { photo } = req.files || {}
 
             let existStaff = await pool.query(`select * from staff where id = $1`, [userId])

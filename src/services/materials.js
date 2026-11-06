@@ -162,7 +162,7 @@ class MaterialsService {
         let { id } = req.params
 
         let existMaterial = await pool.query(`select * from materials where id = $1`, [id])
-        if(!existMaterial.rows.length) {
+        if (!existMaterial.rows.length) {
             return next(new ErrorException(404, "Material not found!"))
         }
 

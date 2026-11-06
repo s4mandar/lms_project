@@ -22,7 +22,7 @@ class CategoryController {
     async deleteCategory(req, res, next) {
         let resData = await categoryService.deleteCategory(req, res, next)
 
-        if(resData) {
+        if (resData) {
             return res.status(resData.status).json(resData)
         }
     }

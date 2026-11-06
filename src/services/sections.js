@@ -8,11 +8,11 @@ class SectionService {
 
         let course = await pool.query(`select * from courses where id = $1`, [+courseId])
 
-        if(!course.rows.length) {
+        if (!course.rows.length) {
             return next(new ErrorException(404, "Course not found"))
         }
 
-        if(req.user.role == "teacher" && course.rows[0].teacher_id != teacherId) {
+        if (req.user.role == "teacher" && course.rows[0].teacher_id != teacherId) {
             return next(new ErrorException(403, "You cannot add section to this course"))
         }
 
@@ -26,7 +26,7 @@ class SectionService {
 
     async getAllSections(req, res, next) {
         try {
-            const sections = await pool.query(`select id, name from sections where status ='active'`)
+            const sections = await pool.query(`select * from sections where status ='active'`)
             return {
                 status: 200,
                 data: sections.rows
@@ -50,7 +50,7 @@ class SectionService {
                 return next(new ErrorException(404, "Course not found!"))
             }
 
-            if(existCourse.rows[0].teacher_id != req.user.id) {
+            if (existCourse.rows[0].teacher_id != req.user.id) {
                 return next(new ErrorException(403, "You cannot add section to this course!"))
             }
 
@@ -74,7 +74,7 @@ class SectionService {
         try {
             const { name } = req.body || {}
             const { userId } = req.params
-            
+
             let existSection = await pool.query(`select * from sections where id = $1`, [userId])
             if (!existSection.rows.length) {
                 return next(new ErrorException(404, "Section not found!"))
@@ -82,9 +82,9 @@ class SectionService {
 
             let currentSection = existSection.rows[0]
 
-            if(name && name !== currentSection.name) {
+            if (name && name !== currentSection.name) {
                 let existName = await pool.query(`select * from sections where name = $1 and id != $2`, [name, userId])
-                if(existName.rows.length) {
+                if (existName.rows.length) {
                     return next(new ErrorException(409, "Section already exist with this name"))
                 }
             }

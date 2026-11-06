@@ -43,7 +43,7 @@ class CategoryService {
             let { name } = req.body
 
             let existCategory = await pool.query(`select * from categories where id = $1`, [id])
-            if(!existCategory.rows.length) {
+            if (!existCategory.rows.length) {
                 return next(new ErrorException(404, "Category not found with this userId"))
             }
 
@@ -63,7 +63,7 @@ class CategoryService {
 
         let existCategory = await pool.query(`select * from categories where id = $1`, [id])
 
-        if(!existCategory.rows.length) {
+        if (!existCategory.rows.length) {
             return next(new ErrorException(404, "Category not found with this id"))
         }
 

@@ -99,5 +99,61 @@ export default {
             return next(new ErrorException(400, error.message))
         }
         return next()
-    }
+    },
+    taskSchema: (req, res, next) => {
+        let { error } = schema.taskSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    updateTaskSchema: (req, res, next) => {
+        let { error } = schema.taskSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    materialSchema: (req, res, next) => {
+        let { error } = schema.materialSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    updateMaterialSchema: (req, res, next) => {
+        let { error } = schema.updateMaterialSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    sectionSchema: (req, res, next) => {
+        let { error } = schema.sectionSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    updateSectionSchema: (req, res, next) => {
+        let { error } = schema.updateSectionSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    examSchema: (req, res, next) => {
+        let { error } = schema.examSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    updateExamSchema: (req, res, next) => {
+        let { error } = schema.updateExamSchema.validate(req.body)
+        if (error) {
+            return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
 }

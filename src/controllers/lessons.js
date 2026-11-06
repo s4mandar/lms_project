@@ -5,7 +5,7 @@ class LessonController {
 
     async getLessonsBySectionId(req, res, next) {
         let resData = await lessonService.getLessonsBySectionId(req, res, next)
-        if(resData) {
+        if (resData) {
             return res.status(resData.status).json(resData)
         }
     }
@@ -17,13 +17,13 @@ class LessonController {
 
     async createLesson(req, res, next) {
         let resData = await lessonService.createLesson(req, res, next)
-        if(resData) {
+        if (resData) {
             return res.status(resData.status).json(resData)
         }
     }
     async updateLesson(req, res, next) {
         let resData = await lessonService.updateLesson(req, res, next)
-        if(resData) {
+        if (resData) {
             return res.status(resData.status).json(resData)
         }
     }

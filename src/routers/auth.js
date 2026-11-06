@@ -7,4 +7,4 @@ import authController from "../controllers/auth.js"
 router
     .post("/auth/login", authController.login)
 
-export default router
+export default router 

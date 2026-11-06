@@ -15,7 +15,7 @@ class StaffController {
 
     async updateStaff(req, res, next) {
         let resData = await staffservice.updateStaff(req, res, next)
-        if(resData) {
+        if (resData) {
             return res.status(resData.status).json(resData)
         }
     }
