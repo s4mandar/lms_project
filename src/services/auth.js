@@ -12,10 +12,18 @@ class AuthService {
             let existUser = await pool.query(`select * from staff where phone = $1`, [phone])
             if (!existUser.rows.length) {
                 existUser = await pool.query(`select * from teachers where phone = $1`, [phone])
+                
                 if (!existUser.rows.length) {
-                    return next(new ErrorException(404, "User not found with this phone or password is incorrect!"))
-                }
-                existUser.rows[0].role = "teacher"
+                    existUser = await pool.query(`select * from students where phone = $1`, [phone])
+
+                    if(!existUser.rows.length) {
+                        return next(new ErrorException(404, "User not found with this phone or password is incorrect!"))
+                    } else {
+                        existUser.rows[0].role = "student"
+                    }
+                } else {
+                    existUser.rows[0].role = "teacher"
+                }       
             }
 
             if (!await argon.verify(existUser.rows[0].password, password)) {

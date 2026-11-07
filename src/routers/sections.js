@@ -6,8 +6,8 @@ import { authGuard } from "../guards/auth.guard.js"
 import { roleGuard } from "../guards/role.guard.js"
 
 router
-    .get("/sections", authGuard, roleGuard("teacher"), sectionController.getAllSections)
-    .get("/sections/:courseId", authGuard, roleGuard("teacher"), sectionController.getSections)
+    .get("/sections", sectionController.getAllSections)
+    .get("/sections/:courseId", authGuard, roleGuard("teacher", "admin", "student"), sectionController.getSections)
     .post("/sections", authGuard, roleGuard("teacher"), middleware.sectionSchema, sectionController.createSections)
     .put("/sections/:userId", authGuard, roleGuard("teacher", "admin"), middleware.updateSectionSchema, sectionController.updateSection)
     .delete("/sections/:userId", authGuard, roleGuard("teacher", "admin"), sectionController.deleteSection)

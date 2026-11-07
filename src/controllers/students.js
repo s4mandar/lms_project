@@ -5,6 +5,15 @@ class StudentController {
         let resData = await studentService.getAllStudents()
         return res.status(resData.status).json(resData)
     }
+
+    async getMyAllCourses(req, res, next) {
+        let resData = await studentService.getMyAllCourses(req, res, next)
+
+        if (resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
+
     async createStudent(req, res, next) {
         let resData = await studentService.createStudent(req, res, next)
 

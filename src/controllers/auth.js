@@ -4,7 +4,9 @@ class AuthController {
 
     async login(req, res, next) {
         let resData = await authService.login(req, res, next)
-        return res.status(resData.status).json(resData)
+        if (resData) {
+            return res.status(resData.status).json(resData)
+        }
     }
 }
 

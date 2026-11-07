@@ -7,8 +7,8 @@ import { roleGuard } from "../guards/role.guard.js"
 
 router
     .get("/staff", authGuard, roleGuard("admin"), staffController.getAllStaff)
-    .post("/staff", validationMiddleware.staffSchema, staffController.createStaff)
-    .put("/staff/:userId", validationMiddleware.staffUpdateSchema, staffController.updateStaff)
-    .delete("/staff/:userId", staffController.deleteStaff)
+    .post("/staff", authGuard, roleGuard("admin"), validationMiddleware.staffSchema, staffController.createStaff)
+    .put("/staff/:userId", authGuard, roleGuard("admin"), validationMiddleware.staffUpdateSchema, staffController.updateStaff)
+    .delete("/staff/:userId", authGuard, roleGuard("admin"), staffController.deleteStaff)
 
 export default router

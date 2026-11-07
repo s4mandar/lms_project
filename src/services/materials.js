@@ -58,7 +58,11 @@ class MaterialsService {
     async createMaterial(req, res, next) {
         try {
             let { lesson_id, description } = req.body
-            let { file } = req.files
+            let { file } = req.files || {}
+
+            if (!file) {
+                return next(new ErrorException(400, "Material file is required!"))
+            }
 
             let fileName = Date.now() + "." + file.mimetype.split("/")[1]
             let allowFileType = ["pdf", "docx", "pptx", "txt", "jpg", "jpeg", "png", "gif"]
@@ -89,14 +93,10 @@ class MaterialsService {
                 return next(new ErrorException(403, "You are not authorized to add material to this lesson!"))
             }
 
+            await file.mv(process.cwd() + "/src/uploads/materials/" + fileName)
+
             await pool.query(`insert into materials(lesson_id, description, file) values($1, $2, $3)`,
                 [lesson_id, description, fileName])
-
-            file.mv(process.cwd() + "/src/uploads/materials/" + fileName, (error) => {
-                if (error) {
-                    return next(new ErrorException(500, error))
-                }
-            })
 
             return {
                 status: 201,

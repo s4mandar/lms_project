@@ -3,9 +3,22 @@ import { ErrorException } from "../utils/error.js"
 
 class CoursesService {
 
+    async getMyCourses(req, res, next) {
+        try {
+            let courses = await pool.query(`select * from courses where teacher_id = $1`, [req.user.id])
+
+            return {
+                status: 200,
+                data: courses.rows
+            }
+        } catch (error) {
+            next(new ErrorException(500, error))
+        }
+    }
+
     async getAllCourses(req, res, next) {
         try {
-            const courses = await pool.query(`select * from courses`)
+            const courses = await pool.query(`select * from courses where purchased = true`)
             return {
                 status: 200,
                 data: courses.rows
@@ -87,6 +100,10 @@ class CoursesService {
 
             let currentCourse = existCourse.rows[0]
 
+            if (req.user.role === "teacher" && currentCourse.teacher_id !== req.user.id) {
+                return next(new ErrorException(403, "You cannot update this course!"))
+            }
+
             let fileNameBanner = currentCourse.banner
             let fileNameIntroVideo = currentCourse.intro_video
 
@@ -139,13 +156,17 @@ class CoursesService {
             return next(new ErrorException(500, error))
         }
     }
+
     async deleteCourse(req, res, next) {
         try {
             let { id } = req.params
-            let existCourse = await pool.query(`select id from courses where id = $1`, [id])
+            let existCourse = await pool.query(`select * from courses where id = $1`, [id])
 
             if (!existCourse.rows.length) {
                 return next(new ErrorException(404, "Course not found with this id"))
+            }
+            if (req.user.role === "teacher" && existCourse.rows[0].teacher_id !== req.user.id) {
+                return next(new ErrorException(403, "You cannot delete this course!"))
             }
             await pool.query(`update courses set status = 'inactive' where id = $1`, [id])
             return {
@@ -153,6 +174,24 @@ class CoursesService {
                 message: "Course deleted!"
             }
 
+        } catch (error) {
+            return next(new ErrorException(500, error))
+        }
+    }
+
+    async courseApproved(req, res, next) {
+        try {
+            const { courseId } = req.params
+
+            let course = await pool.query(`select * from courses where id = $1`, [courseId])
+            let purchased = course.rows[0].purchased
+
+            await pool.query(`update courses set purchased = ${!purchased} where id = $1`, [courseId])
+
+            return {
+                status: 200,
+                message: "Course status changed!"
+            }
         } catch (error) {
             return next(new ErrorException(500, error))
         }

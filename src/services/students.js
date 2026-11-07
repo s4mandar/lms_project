@@ -17,21 +17,44 @@ class StudentService {
         }
     }
 
+    async getMyAllCourses(req, res, next) {
+        try {
+            let studentId = req.user.id
+
+            const course =  await pool.query(`
+                select c.id, c.name, c.banner, t.fullname, t.photo from studentcourse 
+                sc inner join courses c on sc.course_id = c.id 
+                inner join teachers t on c.teacher_id = t.id where sc.student_id = $1`, [studentId])
+            
+            return {
+                status: 200,
+                data: course.rows
+            }
+
+        } catch (error) {
+            return next(new ErrorException(500, error))
+        }
+    }
+
     async createStudent(req, res, next) {
         try {
-            const { fullname, phone, password } = req.body
+            const { fullname, phone, password, course_id } = req.body
             let existStudent = await pool.query(`select * from students where phone = $1`, [phone])
             if (existStudent.rows.length) {
                 return next(new ErrorException(409, "Student already exist with this phone"))
             }
             let hashPass = await argon.hash(password)
 
-            await pool.query(`insert into students(fullname, phone, password) 
-                values($1, $2, $3)`, [fullname, phone, hashPass])
+            let student = await pool.query(`insert into students(fullname, phone, password) 
+                values($1, $2, $3) returning id `, [fullname, phone, hashPass])
+
+            let studentId = student.rows[0].id
+
+            await pool.query(`insert into studentcourse(student_id, course_id) values($1, $2)`, [studentId, course_id])
 
             return {
                 status: 201,
-                message: "Student added!"
+                message: "Student added and course purchased!"
             }
         } catch (error) {
             return next(new ErrorException(500, error))

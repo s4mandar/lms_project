@@ -56,6 +56,8 @@ class StaffService {
                 updatePassword = await argon2.hash(password)
             }
 
+            let photoName = currentStaff.photo
+
             if (photo) {
                 let photoName = Date.now() + "." + photo.mimetype.split("/")[1]
 
@@ -73,7 +75,7 @@ class StaffService {
 
             let updateFullName = fullname ? fullname : currentStaff.fullname
             let updatePhone = phone !== undefined ? phone : currentStaff.phone
-            let updatePhoto = photo ? photoName : currentStaff.photo
+            let updatePhoto = photoName
             let updateRole = role ? role : currentStaff.role
 
             await pool.query(`update staff set fullname=$1, phone=$2, photo=$3, password=$4, role=$5 where id = $6`,

@@ -108,7 +108,7 @@ export default {
         return next()
     },
     updateTaskSchema: (req, res, next) => {
-        let { error } = schema.taskSchema.validate(req.body)
+        let { error } = schema.updateTaskSchema.validate(req.body)
         if (error) {
             return next(new ErrorException(400, error.message))
         }

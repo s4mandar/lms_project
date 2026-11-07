@@ -117,11 +117,25 @@ class LessonService {
 
             let currentLesson = existLesson.rows[0]
 
+            let teacher = await pool.query(`select c.teacher_id from sections s join courses c on c.id = s.course_id where s.id = $1`,
+                [currentLesson.section_id])
+
+            if (req.user.role === "teacher" && teacher.rows[0].teacher_id !== req.user.id) {
+                return next(new ErrorException(403, "You cannot update this lesson!"))
+            }
+
             if (section_id) {
                 let existSection = await pool.query(`select * from sections where id = $1`, [section_id])
                 if (!existSection.rows.length) {
                     return next(new ErrorException(409, "SectionId not found to update"))
                 }
+            }
+
+            let teach = await pool.query(`select c.teacher_id from sections s join courses c on c.id = s.course_id where s.id = $1`,
+                [section_id])
+
+            if (req.user.role === "teacher" && teach.rows[0].teacher_id !== req.user.id) {
+                return next(new ErrorException(403, "You cannot move lesson to this section!"))
             }
 
             let FileName = currentLesson.file
@@ -161,6 +175,13 @@ class LessonService {
             let existLesson = await pool.query(`select * from lessons where id = $1`, [id])
             if (!existLesson.rows.length) {
                 return next(new ErrorException(404, "Lesson not found with this id"))
+            }
+
+            let teacher = await pool.query(`select c.teacher_id from sections s join courses c on c.id = s.course_id where s.id = $1`,
+                [existLesson.rows[0].section_id])
+
+            if (req.user.role === "teacher" && teacher.rows[0].teacher_id !== req.user.id) {
+                return next(new ErrorException(403, "You cannot delete this lesson!"))
             }
 
             await pool.query(`update lessons set status = 'inactive' where id = $1`, [id])

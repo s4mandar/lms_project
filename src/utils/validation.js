@@ -10,7 +10,8 @@ export default {
     studentSchema: Joi.object({
         fullname: Joi.string().min(3).max(30).required(),
         phone: Joi.string().pattern(/^\+998(9[0123456789]|3[3]|7[1]|8[8])[0-9]{7}$/).required(),
-        password: Joi.string().min(6).required()
+        password: Joi.string().min(6).required(),
+        course_id: Joi.number().integer().required()
     }),
     categorySchema: Joi.object({
         name: Joi.string().min(3).max(30).required()
@@ -84,18 +85,19 @@ export default {
         lesson_id: Joi.number().integer().positive()
     }),
     materialSchema: Joi.object({
-        lesson_id: Joi.number().integer().positive().required()
+        lesson_id: Joi.number().integer().positive().required(),
+        description: Joi.string().max(500).required(),
     }),
     updateMaterialSchema: Joi.object({
-        lesson_id: Joi.number().integer().positive()
+        lesson_id: Joi.number().integer().positive(),
+        description: Joi.string().max(500)
     }),
     sectionSchema: Joi.object({
         name: Joi.string().min(3).max(30).required(),
         course_id: Joi.number().integer().positive().required()
     }),
     updateSectionSchema: Joi.object({
-        name: Joi.string().min(3).max(30),
-        course_id: Joi.number().integer().positive()
+        name: Joi.string().min(3).max(30)
     }),
     examSchema: Joi.object({
         lesson_id: Joi.number().integer().positive().required(),

@@ -11,6 +11,6 @@ router
     .get("/assists/:assistId", authGuard, roleGuard("admin"), assistController.getAssistByAssistId)
     .post("/assists", authGuard, roleGuard("admin"), middleware.assistSchema, assistController.createAssist)
     .delete("/assists/:assistId", authGuard, roleGuard("admin"), assistController.deleteAssist)
-    .put("/assists/:assistId", authGuard, middleware.assistUpdateSchema, assistController.updateAssistById)
+    .put("/assists/:assistId", authGuard, roleGuard("admin", "teacher"), middleware.assistUpdateSchema, assistController.updateAssistById)
 
 export default router
