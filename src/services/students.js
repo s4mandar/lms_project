@@ -21,11 +21,11 @@ class StudentService {
         try {
             let studentId = req.user.id
 
-            const course =  await pool.query(`
+            const course = await pool.query(`
                 select c.id, c.name, c.banner, t.fullname, t.photo from studentcourse 
                 sc inner join courses c on sc.course_id = c.id 
                 inner join teachers t on c.teacher_id = t.id where sc.student_id = $1`, [studentId])
-            
+
             return {
                 status: 200,
                 data: course.rows
@@ -42,6 +42,12 @@ class StudentService {
             let existStudent = await pool.query(`select * from students where phone = $1`, [phone])
             if (existStudent.rows.length) {
                 return next(new ErrorException(409, "Student already exist with this phone"))
+            }
+
+            let existCourseId = await pool.query(`select * from courses where id =$1`, [course_id])
+
+            if (!existCourseId.rows.length) {
+                return next(new ErrorException(404, "Course not found with this course Id"))
             }
             let hashPass = await argon.hash(password)
 
@@ -73,6 +79,13 @@ class StudentService {
             }
 
             let currentStudent = existStudent.rows[0]
+
+            if (phone && phone !== currentStudent.phone) {
+                const existPhone = await pool.query(`select id from students where phone = $1 and id != $2`, [phone, userId])
+                if (existPhone.rows.length) {
+                    return next(new ErrorException(409, "Student already exist with this phone"))
+                }
+            }
 
             let updatePassword = currentStudent.password
 

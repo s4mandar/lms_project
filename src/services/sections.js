@@ -2,6 +2,7 @@ import pool from "../config/db.js"
 import { ErrorException } from "../utils/error.js"
 
 class SectionService {
+
     async getSections(req, res, next) {
         const { courseId } = req.params
 
@@ -52,11 +53,6 @@ class SectionService {
         try {
             const { name, course_id } = req.body
 
-            let existName = await pool.query(`select * from sections where name = $1`, [name])
-            if (existName.rows.length) {
-                return next(new ErrorException(409, "Section already exist with this name"))
-            }
-
             const existCourse = await pool.query(`select * from courses where id = $1`, [course_id])
             if (!existCourse.rows.length) {
                 return next(new ErrorException(404, "Course not found!"))
@@ -70,8 +66,14 @@ class SectionService {
                 return next(new ErrorException(400, "Course is not active!"))
             }
 
-            await pool.query(`insert into sections(name, course_id) 
-                values($1, $2)`, [name, course_id])
+            const existName = await pool.query(
+                `select id from sections where course_id = $1 and lower(name) = lower($2) and status = 'active'`,
+                [course_id, name])
+            if (existName.rows.length) {
+                return next(new ErrorException(409, "Section already exists in this course!"))
+            }
+
+            await pool.query(`insert into sections(name, course_id) values($1, $2)`, [name, course_id])
 
             return {
                 status: 201,
@@ -96,14 +98,20 @@ class SectionService {
 
             let teacher = await pool.query(`select teacher_id from courses where id = $1`, [currentSection.course_id])
 
+            if (!teacher.rows.length) {
+                return next(new ErrorException(404, "Course not found!"))
+            }
+
             if (req.user.role === "teacher" && teacher.rows[0].teacher_id !== req.user.id) {
                 return next(new ErrorException(403, "You cannot update this section!"))
             }
 
-            if (name && name !== currentSection.name) {
-                let existName = await pool.query(`select * from sections where name = $1 and id != $2`, [name, userId])
+            if (name) {
+                let existName = await pool.query(
+                    `select id from sections where course_id = $1 and lower(name) = lower($2) and status = 'active' and id != $3`,
+                    [currentSection.course_id, name, userId])
                 if (existName.rows.length) {
-                    return next(new ErrorException(409, "Section already exist with this name"))
+                    return next(new ErrorException(409, "Section already exists in this course!"))
                 }
             }
 
@@ -119,6 +127,7 @@ class SectionService {
             return next(new ErrorException(500, error))
         }
     }
+    
     async deleteSection(req, res, next) {
         try {
             const { userId } = req.params
@@ -128,6 +137,10 @@ class SectionService {
             }
 
             let teacher = await pool.query(`select teacher_id from courses where id = $1`, [existSection.rows[0].course_id])
+
+            if (!teacher.rows.length) {
+                return next(new ErrorException(404, "Course not found!"))
+            }
 
             if (req.user.role === "teacher" && teacher.rows[0].teacher_id !== req.user.id) {
                 return next(new ErrorException(403, "You cannot delete this section!"))

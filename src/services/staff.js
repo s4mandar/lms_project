@@ -17,21 +17,33 @@ class StaffService {
         }
     }
 
+
     async createStaff(req, res, next) {
         try {
             const { fullname, phone, password, role } = req.body
-            let existStaff = await pool.query(`select * from staff where phone = $1`, [phone])
+
+            let updateRole = role.toLowerCase().trim()
+
+            let existStaff = await pool.query(
+                `select * from staff where phone = $1`,
+                [phone]
+            )
+
             if (existStaff.rows.length) {
                 return next(new ErrorException(409, "User already exist with this phone"))
             }
+
             let hashPassword = await argon2.hash(password)
+
             await pool.query(`insert into staff(fullname, phone, password, role)
-                values($1, $2, $3, $4)`, [fullname, phone, hashPassword, role])
+            values($1, $2, $3, $4)`,
+                [fullname, phone, hashPassword, updateRole])
 
             return {
                 status: 201,
                 message: "User successfully created"
             }
+
         } catch (error) {
             return next(new ErrorException(500, error))
         }
@@ -43,12 +55,21 @@ class StaffService {
             let { fullname, phone, password, role } = req.body || {}
             let { photo } = req.files || {}
 
-            let existStaff = await pool.query(`select * from staff where id = $1`, [userId])
+            let existStaff = await pool.query(`select * from staff where id = $1`,
+                [userId])
+
             if (!existStaff.rows.length) {
                 return next(new ErrorException(404, "User not found with this userId"))
             }
 
             let currentStaff = existStaff.rows[0]
+
+            if (phone && phone !== currentStaff.phone) {
+                const existPhone = await pool.query(`select id from staff where phone = $1 and id != $2`, [phone, userId])
+                if (existPhone.rows.length) {
+                    return next(new ErrorException(409, "User already exist with this phone"))
+                }
+            }
 
             let updatePassword = currentStaff.password
 
@@ -59,30 +80,31 @@ class StaffService {
             let photoName = currentStaff.photo
 
             if (photo) {
-                let photoName = Date.now() + "." + photo.mimetype.split("/")[1]
+                let fileType = photo.mimetype.split("/")[1]
 
                 const allowFileType = ["png", "jpg", "jpeg", "svg"]
 
-                if (!allowFileType.includes(photo.mimetype.split("/")[1])) {
+                if (!allowFileType.includes(fileType)) {
                     return next(new ErrorException(415, "Unsupported mediatype"))
                 }
-                photo.mv(process.cwd() + "/src/uploads/staff_fotos/" + photoName, (error) => {
-                    if (error) {
-                        return next(new ErrorException(500, error))
-                    }
-                })
+
+                photoName = Date.now() + "." + fileType
+
+                await photo.mv(
+                    process.cwd() + "/src/uploads/staff_fotos/" + photoName
+                )
             }
 
-            let updateFullName = fullname ? fullname : currentStaff.fullname
-            let updatePhone = phone !== undefined ? phone : currentStaff.phone
-            let updatePhoto = photoName
-            let updateRole = role ? role : currentStaff.role
+            let updateFullName = fullname ?? currentStaff.fullname
+            let updatePhone = phone ?? currentStaff.phone
+            let updateRole = role ? role.toLowerCase().trim() : currentStaff.role
 
             await pool.query(`update staff set fullname=$1, phone=$2, photo=$3, password=$4, role=$5 where id = $6`,
-                [updateFullName, updatePhone, updatePhoto, updatePassword, updateRole, userId])
+                [updateFullName, updatePhone, photoName, updatePassword, updateRole, userId]
+            )
 
             return {
-                status: 201,
+                status: 200,
                 message: "Staff updated successfully!"
             }
 
@@ -90,6 +112,7 @@ class StaffService {
             return next(new ErrorException(500, error))
         }
     }
+
 
     async deleteStaff(req, res, next) {
         try {

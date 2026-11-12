@@ -33,17 +33,28 @@ class LessonService {
         }
     }
 
+
     async getAllLessons(req, res, next) {
         try {
-            const lessons = await pool.query(`select * from lessons`)
+            let lessons
+
+            if (req.user.role === "admin") {
+                lessons = await pool.query(`select * from lessons where status = 'active'`)
+            } else {
+                lessons = await pool.query(`select l.* from lessons l join sections s on s.id = l.section_id join courses c on c.id = s.course_id where c.teacher_id = $1 and l.status = 'active'`,
+                    [req.user.id])
+            }
+
             return {
                 status: 200,
                 data: lessons.rows
             }
+
         } catch (error) {
             return next(new ErrorException(500, error))
         }
     }
+
 
     async createLesson(req, res, next) {
         try {
@@ -61,10 +72,6 @@ class LessonService {
                 return next(new ErrorException(415, "Unsupported Mediatype"))
             }
 
-            let exitsName = await pool.query(`select * from lessons where name = $1`, [name])
-            if (exitsName.rows.length) {
-                return next(new ErrorException(409, "Lesson already exist!"))
-            }
 
             let existSection = await pool.query(`select * from sections where id = $1`, [section_id])
             if (!existSection.rows.length) {
@@ -86,6 +93,14 @@ class LessonService {
                 return next(new ErrorException(400, "Section is not active!"))
             }
 
+            let exitsName = await pool.query(
+                `select id from lessons where section_id = $1 and lower(name) = lower($2) and status = 'active'`,
+                [section_id, name])
+
+            if (exitsName.rows.length) {
+                return next(new ErrorException(409, "Lesson already exists in this section!"))
+            }
+
             await file.mv(process.cwd() + "/src/uploads/lessons_file/" + fileName, (error) => {
                 if (error) {
                     return next(new ErrorException(500, error))
@@ -104,6 +119,7 @@ class LessonService {
         }
     }
 
+
     async updateLesson(req, res, next) {
         try {
             let { id } = req.params
@@ -111,6 +127,7 @@ class LessonService {
             let { file } = req.files || {}
 
             let existLesson = await pool.query(`select * from lessons where id = $1`, [id])
+
             if (!existLesson.rows.length) {
                 return next(new ErrorException(404, "Lesson not found with this id"))
             }
@@ -120,53 +137,85 @@ class LessonService {
             let teacher = await pool.query(`select c.teacher_id from sections s join courses c on c.id = s.course_id where s.id = $1`,
                 [currentLesson.section_id])
 
+            if (!teacher.rows.length) {
+                return next(new ErrorException(404, "Course or section not found!"))
+            }
+
             if (req.user.role === "teacher" && teacher.rows[0].teacher_id !== req.user.id) {
                 return next(new ErrorException(403, "You cannot update this lesson!"))
             }
 
-            if (section_id) {
-                let existSection = await pool.query(`select * from sections where id = $1`, [section_id])
+            if (section_id && section_id != currentLesson.section_id) {
+                let existSection = await pool.query(`select * from sections where id = $1`,
+                    [section_id])
+
                 if (!existSection.rows.length) {
-                    return next(new ErrorException(409, "SectionId not found to update"))
+                    return next(new ErrorException(404, "Section not found!"))
                 }
-            }
 
-            let teach = await pool.query(`select c.teacher_id from sections s join courses c on c.id = s.course_id where s.id = $1`,
-                [section_id])
-
-            if (req.user.role === "teacher" && teach.rows[0].teacher_id !== req.user.id) {
-                return next(new ErrorException(403, "You cannot move lesson to this section!"))
-            }
-
-            let FileName = currentLesson.file
-
-            if (file) {
-                FileName = Date.now() + "." + file.mimetype.split("/")[1]
-
-                const allowFileType = ["mp4", "mov", "webm", "avi", "ogm"]
-
-                if (!allowFileType.includes(file.mimetype.split("/")[1])) {
-                    return next(new ErrorException(415, "Unsupported mediatype"))
+                if (existSection.rows[0].status !== "active") {
+                    return next(new ErrorException(400, "Section is not active!"))
                 }
-                await file.mv(process.cwd() + "/src/uploads/lessons_file/" + FileName)
+
+                let teach = await pool.query(`select c.teacher_id from sections s join courses c on c.id = s.course_id where s.id = $1`,
+                    [section_id])
+
+                if (!teach.rows.length) {
+                    return next(new ErrorException(404, "Course not found!"))
+                }
+
+                if (req.user.role === "teacher" && teach.rows[0].teacher_id !== req.user.id) {
+                    return next(new ErrorException(403, "You cannot move lesson to this section!"))
+                }
             }
 
             let updateSectionId = section_id ? section_id : currentLesson.section_id
             let updateName = name ? name : currentLesson.name
-            let descriptionUpdate = description ? description : currentLesson.description
-            let updateFileName = FileName
 
-            await pool.query(`update lessons set section_id=$1, name=$2, description=$3, file=$4 where id=$5`,
-                [updateSectionId, updateName, descriptionUpdate, updateFileName, id])
+            if (name || section_id) {
+                let existName = await pool.query(
+                    `select id from lessons where section_id = $1 and lower(name) = lower($2) and status = 'active' and id != $3`,
+                    [updateSectionId, updateName, id])
+
+                if (existName.rows.length) {
+                    return next(new ErrorException(409, "Lesson already exists in this section!"))
+                }
+            }
+            let FileName = currentLesson.file
+
+            if (file) {
+                let fileType = file.mimetype.split("/")[1]
+
+                const allowFileType = ["mp4", "mov", "webm", "avi", "ogm"]
+
+                if (!allowFileType.includes(fileType)) {
+                    return next(new ErrorException(415, "Unsupported mediatype"))
+                }
+
+                FileName = Date.now() + "." + fileType
+
+                await file.mv(
+                    process.cwd() + "/src/uploads/lessons_file/" + FileName
+                )
+            }
+
+            let descriptionUpdate = description !== undefined
+                ? description
+                : currentLesson.description
+
+            await pool.query(`update lessons set section_id = $1, name = $2, description = $3, file = $4 where id = $5`,
+                [updateSectionId, updateName, descriptionUpdate, FileName, id])
 
             return {
                 status: 200,
                 message: "Lesson successfully updated!"
             }
+
         } catch (error) {
             return next(new ErrorException(500, error))
         }
     }
+
 
     async deleteLesson(req, res, next) {
         try {

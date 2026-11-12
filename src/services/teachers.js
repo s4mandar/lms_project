@@ -73,6 +73,13 @@ class TeacherService {
 
             let currentTeacher = existTeacher.rows[0]
 
+            if (phone && phone !== currentTeacher.phone) {
+                const existPhone = await pool.query(`select id from teachers where phone = $1 and id != $2`, [phone, userId])
+                if (existPhone.rows.length) {
+                    return next(new ErrorException(409, "Teacher Number already exist!"))
+                }
+            }
+
             let updatePassword = currentTeacher.password
 
             if (password) {

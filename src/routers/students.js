@@ -8,8 +8,8 @@ import { roleGuard } from "../guards/role.guard.js"
 router
     .get("/students", authGuard, roleGuard("admin"), studentController.getAllStudents)
     .get("/students/my/courses", authGuard, roleGuard("student"), studentController.getMyAllCourses)
-    .post("/students",authGuard, roleGuard("admin"), middleware.createStudent, studentController.createStudent)
-    .delete("/students/:userId",authGuard, roleGuard("admin"), studentController.deleteStudent)
-    .put("/students/:userId",authGuard, roleGuard("admin"), middleware.UpdateStudentSchema, studentController.updateStudentbyId)
+    .post("/students", authGuard, roleGuard("admin"), middleware.createStudent, studentController.createStudent)
+    .delete("/students/:userId", authGuard, roleGuard("admin"), middleware.checkId, studentController.deleteStudent)
+    .put("/students/:userId", authGuard, roleGuard("admin"), middleware.checkId, middleware.UpdateStudentSchema, studentController.updateStudentbyId)
 
 export default router

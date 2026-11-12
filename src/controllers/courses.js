@@ -1,6 +1,14 @@
 import coursesService from "../services/courses.js"
 
 class CoursesController {
+    async getCoursesByCategoryId(req, res, next) {
+        let resData = await coursesService.getCoursesByCategoryId(req, res, next)
+
+        if (resData) {
+            return res.status(resData.status).json(resData)
+        }
+    }
+
     async getAllCourses(req, res, next) {
         let resData = await coursesService.getAllCourses()
         return res.status(resData.status).json(resData)

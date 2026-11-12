@@ -8,9 +8,9 @@ import { roleGuard } from "../guards/role.guard.js"
 
 router
     .get("/teachers", teacherController.getAllTeachers)
-    .get("/teachers/:teacherId", authGuard, roleGuard("admin"), teacherController.getTeacherByTeacherId)
+    .get("/teachers/:teacherId", authGuard, roleGuard("admin"), middleware.checkId, teacherController.getTeacherByTeacherId)
     .post("/teachers", authGuard, roleGuard("admin"), middleware.teacherSchema, teacherController.createTeacher)
-    .delete("/teachers/:userId", authGuard, roleGuard("admin"), teacherController.deleteTeacher)
-    .put("/teachers/:userId", authGuard, roleGuard("admin"), middleware.teacherUpdateSchema, teacherController.updateTeacherbyId)
+    .delete("/teachers/:userId", authGuard, roleGuard("admin"), middleware.checkId, teacherController.deleteTeacher)
+    .put("/teachers/:userId", authGuard, roleGuard("admin"), middleware.checkId, middleware.teacherUpdateSchema, teacherController.updateTeacherbyId)
 
 export default router

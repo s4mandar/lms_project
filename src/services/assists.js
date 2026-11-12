@@ -79,6 +79,13 @@ class AssistService {
 
             let currentAsistant = existAssist.rows[0]
 
+            if (phone && phone !== currentAsistant.phone) {
+                const existPhone = await pool.query(`select id from assists where phone = $1 and id != $2`, [phone, assistId])
+                if (existPhone.rows.length) {
+                    return next(new ErrorException(409, "Assist Number already exist!"))
+                }
+            }
+
             let updatePassword = currentAsistant.password
 
             if (password) {
@@ -123,7 +130,7 @@ class AssistService {
             return next(new ErrorException(500, error))
         }
     }
-    
+
     async deleteAssist(req, res, next) {
         try {
             let { assistId } = req.params

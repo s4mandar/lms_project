@@ -8,7 +8,7 @@ import { roleGuard } from "../guards/role.guard.js"
 router
     .get("/categories", authGuard, roleGuard("admin"), categoryController.getAllCategories)
     .post("/categories", authGuard, roleGuard("admin"), middleware.createCategory, categoryController.createCategory)
-    .put("/categories/:id", authGuard, roleGuard("admin"), middleware.updateCategory, categoryController.updateCategory)
-    .delete("/categories/:id", authGuard, roleGuard("admin", "teacher"), categoryController.deleteCategory)
+    .put("/categories/:id", authGuard, roleGuard("admin"),middleware.checkId, middleware.updateCategory, categoryController.updateCategory)
+    .delete("/categories/:id", authGuard, roleGuard("admin", "teacher"),middleware.checkId, categoryController.deleteCategory)
 
 export default router

@@ -62,6 +62,13 @@ export default {
     teacherUpdateSchema: Joi.object({
         fullname: Joi.string().min(3).max(30),
         phone: Joi.string().pattern(/^\+998(9[0123456789]|3[3]|7[1]|8[8])[0-9]{7}$/),
+        experience: Joi.number().integer().positive(),
+        job: Joi.string(),
+        description: Joi.string().max(300),
+        portfolio: Joi.string().max(404),
+        github: Joi.string(),
+        telegram: Joi.string(),
+        linkedin: Joi.string(),
         password: Joi.string().min(6)
     }),
     assistSchema: Joi.object({

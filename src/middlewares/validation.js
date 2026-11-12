@@ -24,8 +24,8 @@ export default {
         return next()
     },
     createCourse: (req, res, next) => {
-        let { error} = schema.courseSchema.validate(req.body)
-        if(error) {
+        let { error } = schema.courseSchema.validate(req.body)
+        if (error) {
             return next(new ErrorException(400, error.message))
         }
         return next()
@@ -37,14 +37,14 @@ export default {
         }
         return next()
     },
-    UpdateStudentSchema : (req, res, next) => {
+    UpdateStudentSchema: (req, res, next) => {
         let { error } = schema.UpdateStudentSchema.validate(req.body)
         if (error) {
             return next(new ErrorException(400, error.message))
         }
         return next()
     },
-    updateCategory : (req, res, next) => {
+    updateCategory: (req, res, next) => {
         let { error } = schema.UpdateCategorySchema.validate(req.body)
         if (error) {
             return next(new ErrorException(400, error.message))
@@ -86,14 +86,14 @@ export default {
         }
         return next()
     },
-    assistSchema : (req, res, next) => {
+    assistSchema: (req, res, next) => {
         let { error } = schema.assistSchema.validate(req.body)
         if (error) {
             return next(new ErrorException(400, error.message))
         }
         return next()
     },
-    assistUpdateSchema : (req, res, next) => {
+    assistUpdateSchema: (req, res, next) => {
         let { error } = schema.assistUpdateSchema.validate(req.body)
         if (error) {
             return next(new ErrorException(400, error.message))
@@ -153,6 +153,16 @@ export default {
         let { error } = schema.updateExamSchema.validate(req.body)
         if (error) {
             return next(new ErrorException(400, error.message))
+        }
+        return next()
+    },
+    checkId: (req, res, next) => {
+        let { id, userId, courseId, sectionId, lessonId, examId, assistId, teacherId } = req.params
+        let ids = [id, userId, courseId, sectionId, lessonId, examId, assistId, teacherId]
+        for (let item of ids) {
+            if (item !== undefined && (!/^[1-9]\d*$/.test(item))) {
+                return next(new ErrorException(400, "Invalid ID format!"))
+            }
         }
         return next()
     },

@@ -7,10 +7,10 @@ import { authGuard } from "../guards/auth.guard.js"
 import { roleGuard } from "../guards/role.guard.js"
 
 router
-    .get("/tasks/:lessonId", authGuard, roleGuard("admin", "teacher"), taskController.getTaskByLessonId)
+    .get("/tasks/:lessonId", authGuard, roleGuard("admin", "teacher"), middleware.checkId, taskController.getTaskByLessonId)
     .get("/tasks", authGuard, roleGuard("admin", "teacher"), taskController.getAllTasks)
     .post("/tasks", authGuard, roleGuard("teacher"), middleware.taskSchema, taskController.createTask)
-    .put("/tasks/:lessonId", authGuard, roleGuard("teacher"), middleware.updateTaskSchema, taskController.updateTask)
-    .delete("/tasks/:lessonId", authGuard, roleGuard("teacher"), taskController.deleteTask)
+    .put("/tasks/:lessonId", authGuard, roleGuard("teacher"), middleware.checkId, middleware.updateTaskSchema, taskController.updateTask)
+    .delete("/tasks/:lessonId", authGuard, roleGuard("teacher"), middleware.checkId, taskController.deleteTask)
 
 export default router
